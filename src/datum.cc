@@ -1,4 +1,4 @@
-#include <float.h>
+#include <limits>
 #include <cmath>
 
 #include "datum.h"
@@ -373,10 +373,10 @@ Datum Datum::to_raw() const {
 Datum::Datum(Cursor&& cursor) : Datum(cursor.to_datum()) { }
 Datum::Datum(const Cursor& cursor) : Datum(cursor.to_datum()) { }
 
-static const double max_dbl_int = 0x1LL << DBL_MANT_DIG;
+static const double max_dbl_int = 0x1LL << std::numeric_limits< double >::digits;
 static const double min_dbl_int = max_dbl_int * -1;
 bool number_as_integer(double d, int64_t *i_out) {
-    static_assert(DBL_MANT_DIG == 53, "Doubles are wrong size.");
+    static_assert(std::numeric_limits< double >::digits == 53, "Doubles are wrong size.");
 
     if (min_dbl_int <= d && d <= max_dbl_int) {
         int64_t i = d;
