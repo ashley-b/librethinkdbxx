@@ -1,7 +1,7 @@
 #ifndef CONNECTION_P_H
 #define CONNECTION_P_H
 
-#include <inttypes.h>
+#include <cinttypes>
 
 #include "connection.h"
 #include "term.h"
