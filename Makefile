@@ -4,7 +4,7 @@ CXX ?= clang++
 CXXFLAGS ?=
 INCLUDE_PYTHON_DOCS ?= no
 DEBUG ?= no
-PYTHON ?= python3
+PYTHON ?= python3.7
 
 # Required build settings
 
