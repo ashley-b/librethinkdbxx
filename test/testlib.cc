@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <regex>
+#include <stdexcept>
 #include <thread>
 #include <chrono>
 #include <unistd.h>
@@ -335,7 +336,7 @@ std::string truncate(std::string&& string) {
 
 int len(const R::Datum& d) {
     const R::Array* arr = d.get_array();
-    if (!arr) throw ("testlib: len: expected an array but got " + to_string(d));
+    if (!arr) throw std::runtime_error("testlib: len: expected an array but got " + to_string(d));
     return arr->size();
 }
 
