@@ -300,7 +300,7 @@ Response ReadLock::read_loop(uint64_t token_want, CacheLock&& guard, double wait
             guard.lock();
         }
         conn->guarded_loop_active = false;
-        throw e;
+        throw;
     }
 }
 

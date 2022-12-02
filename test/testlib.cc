@@ -134,7 +134,7 @@ R::Term fetch(R::Cursor& cursor, int count, double timeout) {
             // printf("got %s\n", write_datum(array[array.size()-1]).c_str());
         } catch (const R::Error &e) {
             if (e.message != "next: No more data") {
-                throw e;    // rethrow
+                throw;
             }
 
             break;
