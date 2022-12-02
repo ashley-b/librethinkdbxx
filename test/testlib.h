@@ -170,7 +170,7 @@ void test_eq(const char* code, const R::Cursor& val, const U expected) {
     try {
         R::Datum result = val.to_datum();
         test_eq(code, result, expected);
-    } catch (R::Error& error) {
+    } catch (const R::Error& error) {
         test_eq(code, error, expected);
     }
 }
