@@ -14,7 +14,7 @@ else
   CXXFLAGS += -O3 # -flto
 endif
 
-CXXFLAGS += -std=c++11 -I'build/gen' -Wall -pthread -fPIC
+CXXFLAGS += -std=c++17 -I'build/gen' -Wall -pthread -fPIC
 
 prefix ?= /usr
 DESTDIR ?=
