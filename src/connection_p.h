@@ -110,7 +110,7 @@ public:
 
     size_t recv_some(char*, size_t, double wait);
     void recv(char*, size_t, double wait);
-    std::string recv(size_t);
+    std::string recv(size_t, double wait);
     size_t recv_cstring(char*, size_t);
 
     Response read_loop(uint64_t, CacheLock&&, double);

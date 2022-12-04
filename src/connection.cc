@@ -31,6 +31,14 @@ constexpr uint32_t version_magic =
 constexpr uint32_t json_magic =
     static_cast<uint32_t>(Protocol::VersionDummy::Protocol::JSON);
 
+template< typename T >
+static void vector_append(std::vector< char >& vec, const T& item)
+{
+    static_assert(std::is_standard_layout< T >::value, "This function can not append this type of data");
+    const auto *ptr = reinterpret_cast< const char* >(&item);
+    vec.insert(vec.end(), ptr, std::next(ptr, sizeof(item)));
+}
+
 std::unique_ptr<Connection> connect(std::string host, int port, std::string auth_key) {
     struct addrinfo hints;
     memset(&hints, 0, sizeof hints);
@@ -72,13 +80,14 @@ std::unique_ptr<Connection> connect(std::string host, int port, std::string auth
     WriteLock writer(conn_private.get());
     {
         size_t size = auth_key.size();
-        char buf[12 + size];
-        memcpy(buf, &version_magic, 4);
+        std::vector< char > buf;
+        buf.reserve(sizeof(version_magic) + sizeof(uint32_t) + sizeof(json_magic) + size);
+        vector_append(buf, version_magic);
         uint32_t n = size;
-        memcpy(buf + 4, &n, 4);
-        memcpy(buf + 8, auth_key.data(), size);
-        memcpy(buf + 8 + size, &json_magic, 4);
-        writer.send(buf, sizeof buf);
+        vector_append(buf, n);
+        buf.insert(buf.end(), auth_key.begin(), auth_key.end());
+        vector_append(buf, json_magic);
+        writer.send(buf.data(), buf.size());
     }
 
     ReadLock reader(conn_private.get());
@@ -172,9 +181,10 @@ void WriteLock::send(const std::string data) {
     send(data.data(), data.size());
 }
 
-std::string ReadLock::recv(size_t size) {
-    char buf[size];
-    recv(buf, size, FOREVER);
+std::string ReadLock::recv(size_t size, double wait) {
+    std::string buf;
+    buf.resize(size);
+    recv(buf.data(), buf.size(), wait);
     return buf;
 }
 
@@ -240,21 +250,15 @@ Response ReadLock::read_loop(uint64_t token_want, CacheLock&& guard, double wait
             uint32_t length;
             memcpy(&length, buf + 8, 4);
 
-            //char buffer[length + 1];
-            //bzero(buffer, sizeof(buffer));
-            std::unique_ptr<char[]> bufmem(new char[length + 1]);
-            char *buffer = bufmem.get();
-            bzero(buffer, length + 1);
-            recv(buffer, length, wait);
-            buffer[length] = '\0';
+            std::string buffer = recv(length, wait);
 
             rapidjson::Document json;
-            json.ParseInsitu(buffer);
+            json.ParseInsitu(buffer.data());
             if (json.HasParseError()) {
                 fprintf(stderr, "json parse error, code: %d, position: %d\n",
                     (int)json.GetParseError(), (int)json.GetErrorOffset());
             } else if (json.IsNull()) {
-                fprintf(stderr, "null value, read: %s\n", buffer);
+                fprintf(stderr, "null value, read: %s\n", buffer.c_str());
             }
 
             Datum datum = read_datum(json);
