@@ -1,7 +1,7 @@
 from sys import argv, stderr, float_info
 import sys
 from upstream.parsePolyglot import parseYAML
-from os import walk
+from os import walk, path
 from os.path import join
 from re import sub, match, split, DOTALL
 from collections import namedtuple
@@ -407,8 +407,8 @@ def maybe_discard(py, ot):
 
 data = parseYAML(open(argv[1]).read())
 
-name = sub('/', '_', argv[1].split('.')[0])
-
+name = sub(r'[^a-zA-Z0-9_]', '_', path.splitext(argv[1])[0])
+print('name {}'.format(name), file=stderr)
 enter("void %s() {" % name)
 
 p("enter_section(\"%s: %s\");" % (name, data['desc'].replace('"', '\\"')))
