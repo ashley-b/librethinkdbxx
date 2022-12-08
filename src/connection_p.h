@@ -2,7 +2,9 @@
 #define CONNECTION_P_H
 
 #include <cinttypes>
-
+#include <mutex>
+#include <queue>
+#include <condition_variable>
 #include "connection.h"
 #include "term.h"
 #include "json_p.h"

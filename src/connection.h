@@ -1,12 +1,7 @@
 #pragma once
 
 #include <string>
-#include <queue>
-#include <mutex>
 #include <memory>
-#include <condition_variable>
-
-#include "protocol_defs.h"
 #include "datum.h"
 #include "error.h"
 
