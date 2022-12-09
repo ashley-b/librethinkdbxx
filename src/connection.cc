@@ -47,7 +47,7 @@ std::unique_ptr<Connection> connect(std::string host, int port, std::string auth
     struct addrinfo *p;
     Error error;
     int sockfd;
-    for (p = servinfo; p != NULL; p = p->ai_next) {
+    for (p = servinfo; p != nullptr; p = p->ai_next) {
         sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (sockfd == -1) {
             error = Error::from_errno("socket");
@@ -63,7 +63,7 @@ std::unique_ptr<Connection> connect(std::string host, int port, std::string auth
         break;
     }
 
-    if (p == NULL) {
+    if (p == nullptr) {
         throw error;
     }
 
@@ -113,7 +113,7 @@ size_t ReadLock::recv_some(char* buf, size_t size, double wait) {
 
             tv.tv_sec = (int)wait;
             tv.tv_usec = (int)((wait - (int)wait) / MICROSECOND);
-            int rv = select(conn->guarded_sockfd + 1, &readfds, NULL, NULL, &tv);
+            int rv = select(conn->guarded_sockfd + 1, &readfds, nullptr, nullptr, &tv);
             if (rv == -1) {
                 throw Error::from_errno("select");
             } else if (rv == 0) {

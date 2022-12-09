@@ -50,7 +50,7 @@ bool* Datum::get_boolean() {
     if (type == Type::BOOLEAN) {
         return &value.boolean;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -58,7 +58,7 @@ const bool* Datum::get_boolean() const {
     if (type == Type::BOOLEAN) {
         return &value.boolean;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -66,7 +66,7 @@ double* Datum::get_number() {
     if (type == Type::NUMBER) {
         return &value.number;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -74,7 +74,7 @@ const double* Datum::get_number() const {
     if (type == Type::NUMBER) {
         return &value.number;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -82,7 +82,7 @@ std::string* Datum::get_string() {
     if (type == Type::STRING) {
         return &value.string;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -90,48 +90,48 @@ const std::string* Datum::get_string() const {
     if (type == Type::STRING) {
         return &value.string;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
 Datum* Datum::get_field(std::string key) {
     if (type != Type::OBJECT) {
-        return NULL;
+        return nullptr;
     }
     auto it = value.object.find(key);
     if (it == value.object.end()) {
-        return NULL;
+        return nullptr;
     }
     return &it->second;
 }
 
 const Datum* Datum::get_field(std::string key) const {
     if (type != Type::OBJECT) {
-        return NULL;
+        return nullptr;
     }
     auto it = value.object.find(key);
     if (it == value.object.end()) {
-        return NULL;
+        return nullptr;
     }
     return &it->second;
 }
 
 Datum* Datum::get_nth(size_t i) {
     if (type != Type::ARRAY) {
-        return NULL;
+        return nullptr;
     }
     if (i >= value.array.size()) {
-        return NULL;
+        return nullptr;
     }
     return &value.array[i];
 }
 
 const Datum* Datum::get_nth(size_t i) const {
     if (type != Type::ARRAY) {
-        return NULL;
+        return nullptr;
     }
     if (i >= value.array.size()) {
-        return NULL;
+        return nullptr;
     }
     return &value.array[i];
 }
@@ -140,7 +140,7 @@ Object* Datum::get_object() {
     if (type == Type::OBJECT) {
         return &value.object;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -148,7 +148,7 @@ const Object* Datum::get_object() const {
     if (type == Type::OBJECT) {
         return &value.object;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -156,7 +156,7 @@ Array* Datum::get_array() {
     if (type == Type::ARRAY) {
         return &value.array;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -164,7 +164,7 @@ const Array* Datum::get_array() const {
     if (type == Type::ARRAY) {
         return &value.array;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -172,7 +172,7 @@ Binary* Datum::get_binary() {
     if (type == Type::BINARY) {
         return &value.binary;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -180,7 +180,7 @@ const Binary* Datum::get_binary() const {
     if (type == Type::BINARY) {
         return &value.binary;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -188,7 +188,7 @@ Time* Datum::get_time() {
     if (type == Type::TIME) {
         return &value.time;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -196,7 +196,7 @@ const Time* Datum::get_time() const {
     if (type == Type::TIME) {
         return &value.time;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 

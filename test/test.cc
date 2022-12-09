@@ -87,7 +87,7 @@ void test_issue28() {
 
 int main() {
     signal(SIGPIPE, SIG_IGN);
-    srand(time(NULL));
+    srand(time(nullptr));
     try {
         conn = R::connect();
     } catch(const R::Error& error) {
