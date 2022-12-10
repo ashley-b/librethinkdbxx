@@ -6,7 +6,7 @@
 namespace RethinkDB {
 
 // The size of the longest UTF-8 encoded unicode codepoint
-const size_t max_utf8_encoded_size = 6;
+constexpr size_t max_utf8_encoded_size = 6;
 
 // Decode a base64 string. Returns false on failure.
 bool base64_decode(const std::string& in, std::string& out);

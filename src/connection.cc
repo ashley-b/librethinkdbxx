@@ -26,10 +26,9 @@ namespace RethinkDB {
 using QueryType = Protocol::Query::QueryType;
 
 // constants
-const int debug_net = 0;
-const uint32_t version_magic =
+constexpr uint32_t version_magic =
     static_cast<uint32_t>(Protocol::VersionDummy::Version::V0_4);
-const uint32_t json_magic =
+constexpr uint32_t json_magic =
     static_cast<uint32_t>(Protocol::VersionDummy::Protocol::JSON);
 
 std::unique_ptr<Connection> connect(std::string host, int port, std::string auth_key) {
@@ -84,7 +83,7 @@ std::unique_ptr<Connection> connect(std::string host, int port, std::string auth
 
     ReadLock reader(conn_private.get());
     {
-        const size_t max_response_length = 1024;
+        constexpr size_t max_response_length = 1024;
         char buf[max_response_length + 1];
         size_t len = reader.recv_cstring(buf, max_response_length);
         if (len == max_response_length || strcmp(buf, "SUCCESS")) {

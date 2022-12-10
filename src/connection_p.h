@@ -9,7 +9,7 @@
 
 namespace RethinkDB {
 
-extern const int debug_net;
+inline constexpr int debug_net = 0;
 
 struct Query {
     Protocol::Query::QueryType type;

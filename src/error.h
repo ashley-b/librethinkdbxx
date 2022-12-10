@@ -31,7 +31,7 @@ struct Error {
     std::string message;
 
 private:
-    const size_t max_message_size = 2048;
+    static constexpr size_t max_message_size = 2048;
 
     void format(const char* format_, ...) {
         va_list args;
