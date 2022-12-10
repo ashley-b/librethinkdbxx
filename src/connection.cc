@@ -285,10 +285,10 @@ Response ReadLock::read_loop(uint64_t token_want, CacheLock&& guard, double wait
                 if (it == conn->guarded_cache.end()) {
                     // drop the response
                 } else if (!it->second.closed) {
-                    it->second.responses.emplace(std::move(response));
                     if (response.type != Protocol::Response::ResponseType::SUCCESS_PARTIAL) {
                         it->second.closed = true;
                     }
+                    it->second.responses.emplace(std::move(response));
                 }
                 it->second.cond.notify_all();
                 guard.unlock();
