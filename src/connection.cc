@@ -93,12 +93,10 @@ std::unique_ptr<Connection> connect(std::string host, int port, std::string auth
     ReadLock reader(conn_private.get());
     {
         constexpr size_t max_response_length = 1024;
-        char buf[max_response_length + 1];
-        size_t len = reader.recv_cstring(buf, max_response_length);
-        if (len == max_response_length || strcmp(buf, "SUCCESS")) {
-            buf[len] = 0;
+        const auto buf = reader.recv_zstring(max_response_length);
+        if (buf.size() == max_response_length || buf != "SUCCESS") {
             ::close(sockfd);
-            throw Error("Server rejected connection with message: %s", buf);
+            throw Error("Server rejected connection with message: %s", buf.c_str());
         }
     }
 
@@ -152,16 +150,19 @@ void ReadLock::recv(char* buf, size_t size, double wait) {
     }
 }
 
-size_t ReadLock::recv_cstring(char* buf, size_t max_size){
-    size_t size = 0;
-    for (; size < max_size; size++) {
-        recv(buf, 1, FOREVER);
-        if (*buf == 0) {
+std::string ReadLock::recv_zstring(size_t max_size){
+    std::string buf;
+    buf.reserve(max_size);
+
+    while (buf.size() < max_size) {
+        char c;
+        recv(&c, sizeof(c), FOREVER);
+        if (c == 0) {
             break;
         }
-        buf++;
+        buf.push_back(c);
     }
-    return size;
+    return buf;
 }
 
 void WriteLock::send(const char* buf, size_t size) {
