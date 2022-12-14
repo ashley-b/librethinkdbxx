@@ -412,14 +412,14 @@ void Datum::write_json(json_writer_t *writer) const {
     case Type::STRING: writer->String(value.string.data(), value.string.size()); break;
     case Type::ARRAY: {
         writer->StartArray();
-        for (auto it : value.array) {
+        for (const auto& it : value.array) {
             it.write_json(writer);
         }
         writer->EndArray();
     } break;
     case Type::OBJECT: {
         writer->StartObject();
-        for (auto it : value.object) {
+        for (const auto& it : value.object) {
             writer->Key(it.first.data(), it.first.size());
             it.second.write_json(writer);
         }
