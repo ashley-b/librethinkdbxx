@@ -241,26 +241,26 @@ private:
         void set(Type type, datum_value&& other) {
             switch(type){
             case Type::NIL: case Type::INVALID: break;
-            case Type::BOOLEAN: new (this) bool(other.boolean); break;
-            case Type::NUMBER: new (this) double(other.number); break;
-            case Type::STRING: new (this) std::string(std::move(other.string)); break;
-            case Type::OBJECT: new (this) Object(std::move(other.object)); break;
-            case Type::ARRAY: new (this) Array(std::move(other.array)); break;
-            case Type::BINARY: new (this) Binary(std::move(other.binary)); break;
-            case Type::TIME: new (this) Time(std::move(other.time)); break;
+            case Type::BOOLEAN: new (&boolean) bool(other.boolean); break;
+            case Type::NUMBER: new (&number) double(other.number); break;
+            case Type::STRING: new (&string) std::string(std::move(other.string)); break;
+            case Type::OBJECT: new (&object) Object(std::move(other.object)); break;
+            case Type::ARRAY: new (&array) Array(std::move(other.array)); break;
+            case Type::BINARY: new (&binary) Binary(std::move(other.binary)); break;
+            case Type::TIME: new (&time) Time(std::move(other.time)); break;
             }
         }
 
         void set(Type type, const datum_value& other) {
             switch(type){
             case Type::NIL: case Type::INVALID: break;
-            case Type::BOOLEAN: new (this) bool(other.boolean); break;
-            case Type::NUMBER: new (this) double(other.number); break;
-            case Type::STRING: new (this) std::string(other.string); break;
-            case Type::OBJECT: new (this) Object(other.object); break;
-            case Type::ARRAY: new (this) Array(other.array); break;
-            case Type::BINARY: new (this) Binary(other.binary); break;
-            case Type::TIME: new (this) Time(other.time); break;
+            case Type::BOOLEAN: new (&boolean) bool(other.boolean); break;
+            case Type::NUMBER: new (&number) double(other.number); break;
+            case Type::STRING: new (&string) std::string(other.string); break;
+            case Type::OBJECT: new (&object) Object(other.object); break;
+            case Type::ARRAY: new (&array) Array(other.array); break;
+            case Type::BINARY: new (&binary) Binary(other.binary); break;
+            case Type::TIME: new (&time) Time(other.time); break;
             }
         }
 
