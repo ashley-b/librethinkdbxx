@@ -330,7 +330,7 @@ Datum Datum::from_raw() const {
         if (!type_field) break;
         const std::string* type = type_field->get_string();
         if (!type) break;;
-        if (!strcmp(type->c_str(), "BINARY")) {
+        if (*type == "BINARY") {
             const Datum* data_field = get_field("data");
             if (!data_field) break;
             const std::string* encoded_data = data_field->get_string();
@@ -339,7 +339,7 @@ Datum Datum::from_raw() const {
             if (base64_decode(*encoded_data, binary.data)) {
                 return binary;
             }
-        } else if (!strcmp(type->c_str(), "TIME")) {
+        } else if (*type == "TIME") {
             const Datum* epoch_field = get_field("epoch_time");
             if (!epoch_field) break;
             const Datum* tz_field = get_field("timezone");
