@@ -203,8 +203,9 @@ public:
 private:
     enum class Type {
         INVALID,    // default constructed
-        ARRAY, BOOLEAN, NIL, NUMBER, OBJECT, BINARY, STRING, TIME
+        ARRAY, BOOLEAN, NIL, NUMBER, OBJECT, BINARY,
         // POINT, LINE, POLYGON
+        TIME, STRING
     };
     Type type;
 
