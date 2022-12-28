@@ -3,6 +3,61 @@
 
 namespace RethinkDB {
 
+namespace {
+
+bool base64_decode(char c, int* out) {
+    if (c >= 'A' && c <= 'Z') {
+        *out = c - 'A';
+    } else if (c >= 'a' && c <= 'z') {
+        *out = c - ('a' - 26);
+    } else if (c >= '0' && c <= '9') {
+        *out = c - ('0' - 52);
+    } else if (c == '+') {
+        *out = 62;
+    } else if (c == '/') {
+        *out = 63;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+char base64_encode(unsigned int c) {
+    if (c < 26) {
+        return 'A' + c;
+    } else if (c < 52) {
+        return 'a' + c - 26;
+    } else if (c < 62) {
+        return '0' + c - 52;
+    } else if (c == 62) {
+        return '+';
+    } else if (c == 63) {
+        return '/';
+    } else {
+        throw Error("unreachable: base64 encoding %d", c);
+    }
+}
+
+void base64_encode(unsigned int* c, int n, std::string& out) {
+    if (n == 0) {
+        return;
+    }
+    out.append(1, base64_encode(c[0] >> 2));
+    out.append(1, base64_encode((c[0] & 0x3) << 4 | c[1] >> 4));
+    if (n == 1) {
+        out.append("==");
+        return;
+    }
+    out.append(1, base64_encode((c[1] & 0xF) << 2 | c[2] >> 6));
+    if (n == 2) {
+        out.append("=");
+        return;
+    }
+    out.append(1, base64_encode(c[2] & 0x3F));
+}
+
+} // Unnamed namespaces
+
 size_t utf8_encode(unsigned int code, char* buf) {
     if (!(code & ~0x7F)) {
         buf[0] = code;
@@ -42,23 +97,6 @@ size_t utf8_encode(unsigned int code, char* buf) {
     }
 }
 
-bool base64_decode(char c, int* out) {
-    if (c >= 'A' && c <= 'Z') {
-        *out = c - 'A';
-    } else if (c >= 'a' && c <= 'z') {
-        *out = c - ('a' - 26);
-    } else if (c >= '0' && c <= '9') {
-        *out = c - ('0' - 52);
-    } else if (c == '+') {
-        *out = 62;
-    } else if (c == '/') {
-        *out = 63;
-    } else {
-        return false;
-    }
-    return true;
-}
-
 bool base64_decode(const std::string& in, std::string& out) {
     out.clear();
     out.reserve(in.size() * 3 / 4);
@@ -89,40 +127,6 @@ bool base64_decode(const std::string& in, std::string& out) {
         if (end != 4) break;
     }
     return true;
-}
-
-char base64_encode(unsigned int c) {
-    if (c < 26) {
-        return 'A' + c;
-    } else if (c < 52) {
-        return 'a' + c - 26;
-    } else if (c < 62) {
-        return '0' + c - 52;
-    } else if (c == 62) {
-        return '+';
-    } else if (c == 63) {
-        return '/';
-    } else {
-        throw Error("unreachable: base64 encoding %d", c);
-    }
-}
-
-void base64_encode(unsigned int* c, int n, std::string& out) {
-    if (n == 0) {
-        return;
-    }
-    out.append(1, base64_encode(c[0] >> 2));
-    out.append(1, base64_encode((c[0] & 0x3) << 4 | c[1] >> 4));
-    if (n == 1) {
-        out.append("==");
-        return;
-    }
-    out.append(1, base64_encode((c[1] & 0xF) << 2 | c[2] >> 6));
-    if (n == 2) {
-        out.append("=");
-        return;
-    }
-    out.append(1, base64_encode(c[2] & 0x3F));
 }
 
 std::string base64_encode(const std::string& in) {

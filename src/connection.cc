@@ -25,6 +25,8 @@ namespace RethinkDB {
 
 using QueryType = Protocol::Query::QueryType;
 
+namespace {
+
 // constants
 constexpr uint32_t version_magic =
     static_cast<uint32_t>(Protocol::VersionDummy::Version::V0_4);
@@ -38,6 +40,8 @@ static void vector_append(std::vector< char >& vec, const T& item)
     const auto *ptr = reinterpret_cast< const char* >(&item);
     vec.insert(vec.end(), ptr, std::next(ptr, sizeof(item)));
 }
+
+} // Unnamed namespaces
 
 std::unique_ptr<Connection> connect(std::string host, int port, std::string auth_key) {
     struct addrinfo hints;

@@ -6,6 +6,8 @@
 
 extern void run_upstream_tests();
 
+namespace {
+
 void test_json(const char* string, const char* ret = "") {
     TEST_EQ(R::Datum::from_json(string).as_json().c_str(), ret[0] ? ret : string);
 }
@@ -84,6 +86,8 @@ void test_issue28() {
     TEST_EQ(dbs, expected);
     exit_section();
 }
+
+} // Unnamed namespaces
 
 int main() {
     signal(SIGPIPE, SIG_IGN);

@@ -8,6 +8,8 @@ namespace RethinkDB {
 
 using TT = Protocol::Term::TermType;
 
+namespace {
+
 struct {
     Datum operator() (const Array& array) {
         Array copy;
@@ -29,34 +31,6 @@ struct {
         return Datum(std::forward<T>(atomic));
     }
 } datum_to_term;
-
-Term::Term(Datum&& datum_) : datum(datum_.apply<Datum>(datum_to_term)) { }
-Term::Term(const Datum& datum_) : datum(datum_.apply<Datum>(datum_to_term)) { }
-
-Term::Term(Term&& orig, OptArgs&& new_optargs) : datum(Nil()) {
-    Datum* cur = orig.datum.get_nth(2);
-    Object optargs;
-    free_vars = std::move(orig.free_vars);
-    if (cur) {
-        optargs = std::move(cur->extract_object());
-    }
-    for (auto& it : new_optargs) {
-        optargs.emplace(std::move(it.first), alpha_rename(std::move(it.second)));
-    }
-    datum = Array{ std::move(orig.datum.extract_nth(0)), std::move(orig.datum.extract_nth(1)), std::move(optargs) };
-}
-
-Term nil() {
-    return Term(Nil());
-}
-
-Cursor Term::run(Connection& conn, OptArgs&& opts) {
-    if (!free_vars.empty()) {
-        throw Error("run: term has free variables");
-    }
-
-    return conn.start_query(this, std::move(opts));
-}
 
 struct {
     Datum operator() (Object&& object, const std::map<int, int>& subst, bool) {
@@ -98,13 +72,77 @@ struct {
     }
 } alpha_renamer;
 
-static int new_var_id(const std::map<int, int*>& vars) {
+struct {
+    bool operator() (const Object& object) {
+        for (const auto& it : object) {
+            if (it.second.apply<bool>(*this)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool operator() (const Array& array) {
+        int type = *array[0].get_number();
+        if (type == static_cast<int>(TT::IMPLICIT_VAR)) {
+            return true;
+        }
+        if (type == static_cast<int>(TT::FUNC)) {
+            return false;
+        }
+        for (const auto& it : *array[1].get_array()) {
+            if (it.apply<bool>(*this)) {
+                return true;
+            }
+        }
+        if (array.size() == 3) {
+            return array[2].apply<bool>(*this);
+        } else {
+            return false;
+        }
+    }
+    template <class T>
+    bool operator() (T) {
+        return false;
+    }
+} needs_func_wrap;
+
+int new_var_id(const std::map<int, int*>& vars) {
     while (true) {
         int id = gen_var_id();
         if (vars.find(id) == vars.end()) {
             return id;
         }
     }
+}
+
+} // Unnamed namespaces
+
+Term::Term(Datum&& datum_) : datum(datum_.apply<Datum>(datum_to_term)) { }
+Term::Term(const Datum& datum_) : datum(datum_.apply<Datum>(datum_to_term)) { }
+
+Term::Term(Term&& orig, OptArgs&& new_optargs) : datum(Nil()) {
+    Datum* cur = orig.datum.get_nth(2);
+    Object optargs;
+    free_vars = std::move(orig.free_vars);
+    if (cur) {
+        optargs = std::move(cur->extract_object());
+    }
+    for (auto& it : new_optargs) {
+        optargs.emplace(std::move(it.first), alpha_rename(std::move(it.second)));
+    }
+    datum = Array{ std::move(orig.datum.extract_nth(0)), std::move(orig.datum.extract_nth(1)), std::move(optargs) };
+}
+
+Term nil() {
+    return Term(Nil());
+}
+
+Cursor Term::run(Connection& conn, OptArgs&& opts) {
+    if (!free_vars.empty()) {
+        throw Error("run: term has free variables");
+    }
+
+    return conn.start_query(this, std::move(opts));
 }
 
 Datum Term::alpha_rename(Term&& term) {
@@ -162,40 +200,6 @@ Term binary(std::string&& data) {
 Term binary(const char* data) {
     return expr(Binary(data));
 }
-
-struct {
-    bool operator() (const Object& object) {
-        for (const auto& it : object) {
-            if (it.second.apply<bool>(*this)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    bool operator() (const Array& array) {
-        int type = *array[0].get_number();
-        if (type == static_cast<int>(TT::IMPLICIT_VAR)) {
-            return true;
-        }
-        if (type == static_cast<int>(TT::FUNC)) {
-            return false;
-        }
-        for (const auto& it : *array[1].get_array()) {
-            if (it.apply<bool>(*this)) {
-                return true;
-            }
-        }
-        if (array.size() == 3) {
-            return array[2].apply<bool>(*this);
-        } else {
-            return false;
-        }
-    }
-    template <class T>
-    bool operator() (T) {
-        return false;
-    }
-} needs_func_wrap;
 
 Term Term::func_wrap(Term&& term) {
     if (term.datum.apply<bool>(needs_func_wrap)) {
